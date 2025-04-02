@@ -26,7 +26,7 @@ services:
       - "traefik.http.routers.api-registro.rule=Host(`api.localhost`) || (Host(`localhost`) && PathPrefix(`/registro`))"
       - "traefik.http.services.api-registro-service.loadbalancer.server.port=3000"
       - "traefik.http.routers.api-registro.middlewares=api-auth@file"
-      - "traefik.http.middlewares.api-auth.basicauth.users=user:$$2y$$05$$kMGEw3fsQv.FZbw3nvhqCeoDQYXwOL5q1ZmXbLsxjGWewUBCOCODK"
+      - "traefik.http.middlewares.api-auth.basicauth.users=alex:$2y$05$pEfyQFy5gONDUHId6qvbz.WHha5CP8mMtS.FISGnjH.FpaIV8Kju2"
       - "traefik.http.middlewares.strip-registro.stripprefix.prefixes=/registro"
       - "traefik.http.routers.api-registro.service=api-registro-service"
       - "traefik.http.routers.api-registro-path.rule=PathPrefix(`/registro`)"
