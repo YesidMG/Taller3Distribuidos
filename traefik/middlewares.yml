@@ -1,0 +1,48 @@
+middlewares:
+  api-auth:
+    basicAuth:
+      users:
+        - "user:$2y$05$kMGEw3fsQv.FZbw3nvhqCeoDQYXwOL5q1ZmXbLsxjGWewUBCOCODK"  # Contraseña: password
+  
+  dashboard-auth:
+    ipWhiteList:
+      sourceRange:
+        - "127.0.0.1/32"
+        - "192.168.0.0/16"
+        - "172.16.0.0/12"
+        - "10.0.0.0/8"
+  
+  cliente-headers-1:
+    headers:
+      customRequestHeaders:
+        X-Service-ID: "app1"
+  
+  cliente-headers-2:
+    headers:
+      customRequestHeaders:
+        X-Service-ID: "app2"
+  
+  cliente-headers-3:
+    headers:
+      customRequestHeaders:
+        X-Service-ID: "app3"
+  
+  strip-app1:
+    stripPrefix:
+      prefixes:
+        - "/cliente/app1"
+  
+  strip-app2:
+    stripPrefix:
+      prefixes:
+        - "/cliente/app2"
+  
+  strip-app3:
+    stripPrefix:
+      prefixes:
+        - "/cliente/app3"
+  
+  strip-registro:
+    stripPrefix:
+      prefixes:
+        - "/registro"

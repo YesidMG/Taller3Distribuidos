@@ -10,45 +10,88 @@ services:
       - ./traefik/traefik.yml:/etc/traefik/traefik.yml
       - ./traefik/middlewares.yml:/etc/traefik/dynamic/middlewares.yml
       - ./traefik/routers.yml:/etc/traefik/dynamic/routers.yml
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=Host(`traefik.localhost`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.middlewares=dashboard-auth@file"
 
-
-  backend:
+  api-registro:
     build:
       context: ./backend
-    container_name: node-backend
+    container_name: api-registro
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`api.localhost`)"
-      - "traefik.http.services.backend-service.loadbalancer.server.port=3000"
-      - "traefik.http.routers.backend.service=backend-service"
-      - "traefik.http.routers.backend.middlewares=test-auth@file,req-headers@file,error-pages@file"
+      - "traefik.http.routers.api-registro.rule=Host(`api.localhost`) || (Host(`localhost`) && PathPrefix(`/registro`))"
+      - "traefik.http.services.api-registro-service.loadbalancer.server.port=3000"
+      - "traefik.http.routers.api-registro.middlewares=api-auth@file"
+      - "traefik.http.middlewares.api-auth.basicauth.users=user:$$2y$$05$$kMGEw3fsQv.FZbw3nvhqCeoDQYXwOL5q1ZmXbLsxjGWewUBCOCODK"
+      - "traefik.http.middlewares.strip-registro.stripprefix.prefixes=/registro"
+      - "traefik.http.routers.api-registro.service=api-registro-service"
+      - "traefik.http.routers.api-registro-path.rule=PathPrefix(`/registro`)"
+      - "traefik.http.routers.api-registro-path.service=api-registro-service"
+      - "traefik.http.routers.api-registro-path.middlewares=api-auth,strip-registro"
 
-  backend-replica-1:
+  cliente-app-1:
     build:
       context: ./backend
-    container_name: node-backend-replica-1
+    container_name: cliente-app-1
+    restart: unless-stopped
+    environment:
+      - CLIENT_NAME=app1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cliente-app-1.rule=Host(`cliente.localhost`) && PathPrefix(`/cliente/app1`)"
+      - "traefik.http.services.cliente-app-1-service.loadbalancer.server.port=3000"
+      - "traefik.http.routers.cliente-app-1.service=cliente-app-1-service"
+      - "traefik.http.middlewares.cliente-headers-1.headers.customrequestheaders.X-Service-ID=app1"
+      - "traefik.http.middlewares.strip-app1.stripprefix.prefixes=/cliente/app1"
+      - "traefik.http.routers.cliente-app-1.middlewares=cliente-headers-1,strip-app1"
+
+  cliente-app-2:
+    build:
+      context: ./backend
+    container_name: cliente-app-2
+    restart: unless-stopped
+    environment:
+      - CLIENT_NAME=app2
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cliente-app-2.rule=Host(`cliente.localhost`) && PathPrefix(`/cliente/app2`)"
+      - "traefik.http.services.cliente-app-2-service.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.cliente-headers-2.headers.customrequestheaders.X-Service-ID=app2"
+      - "traefik.http.middlewares.strip-app2.stripprefix.prefixes=/cliente/app2"
+      - "traefik.http.routers.cliente-app-2.service=cliente-app-2-service"
+      - "traefik.http.routers.cliente-app-2.middlewares=cliente-headers-2,strip-app2"
+
+  cliente-app-3:
+    build:
+      context: ./backend
+    container_name: cliente-app-3
+    restart: unless-stopped
+    environment:
+      - CLIENT_NAME=app3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cliente-app-3.rule=Host(`cliente.localhost`) && PathPrefix(`/cliente/app3`)"
+      - "traefik.http.services.cliente-app-3-service.loadbalancer.server.port=3000"
+      - "traefik.http.middlewares.cliente-headers-3.headers.customrequestheaders.X-Service-ID=app3"
+      - "traefik.http.middlewares.strip-app3.stripprefix.prefixes=/cliente/app3"
+      - "traefik.http.routers.cliente-app-3.service=cliente-app-3-service"
+      - "traefik.http.routers.cliente-app-3.middlewares=cliente-headers-3,strip-app3"
+
+  monitor:
+    image: nginx:alpine
+    container_name: monitor
+    volumes:
+      - ./monitor/html:/usr/share/nginx/html
     restart: unless-stopped
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`api.localhost`)"
-      - "traefik.http.services.backend-service.loadbalancer.server.port=3000"
-      - "traefik.http.routers.backend.service=backend-service"
-      - "traefik.http.routers.backend.middlewares=test-auth@file,req-headers@file,error-pages@file"
-
-  backend-replica-2:
-    build:
-      context: ./backend
-    container_name: node-backend-replica-2
-    restart: unless-stopped
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.backend.rule=Host(`api.localhost`)"
-      - "traefik.http.services.backend-service.loadbalancer.server.port=3000"
-      - "traefik.http.routers.backend.service=backend-service"
-      - "traefik.http.routers.backend.middlewares=test-auth@file,req-headers@file,error-pages@file"
-
-
+      - "traefik.http.routers.monitor.rule=Host(`monitor.localhost`)"
+      - "traefik.http.services.monitor-service.loadbalancer.server.port=80"
+      - "traefik.http.routers.monitor.service=monitor-service"
 
 volumes:
   grafana-data:

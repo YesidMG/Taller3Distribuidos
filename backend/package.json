@@ -1,0 +1,15 @@
+{
+  "name": "infraestructura-local-backend",
+  "version": "1.0.0",
+  "description": "Backend service for the local infrastructure project using Node.js.",
+  "main": "src/app.js",
+  "scripts": {
+    "start": "node src/app.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "cors": "^2.8.5"
+  },
+  "author": "Your Name",
+  "license": "MIT"
+}
