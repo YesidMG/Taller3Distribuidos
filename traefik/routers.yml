@@ -1,0 +1,63 @@
+http:
+  routers:
+    api-registro:
+      rule: "Host(`api.localhost`)"
+      service: "api-registro-service"
+      entryPoints:
+        - "web"
+
+    cliente-app-1:
+      rule: "Host(`cliente.localhost`) && PathPrefix(`/cliente/app1`)"
+      service: "cliente-app-1-service"
+      entryPoints:
+        - "web"
+      middlewares:
+        - "cliente-headers-1@file"
+
+    cliente-app-2:
+      rule: "Host(`cliente.localhost`) && PathPrefix(`/cliente/app2`)"
+      service: "cliente-app-2-service"
+      entryPoints:
+        - "web"
+      middlewares:
+        - "cliente-headers-2@file"
+
+    cliente-app-3:
+      rule: "Host(`cliente.localhost`) && PathPrefix(`/cliente/app3`)"
+      service: "cliente-app-3-service"
+      entryPoints:
+        - "web"
+      middlewares:
+        - "cliente-headers-3@file"
+
+    monitor:
+      rule: "Host(`monitor.localhost`)"
+      service: "monitor-service"
+      entryPoints:
+        - "web"
+
+  services:
+    api-registro-service:
+      loadBalancer:
+        servers:
+          - url: "http://api-registro:3000"
+
+    cliente-app-1-service:
+      loadBalancer:
+        servers:
+          - url: "http://cliente-app-1:3000"
+
+    cliente-app-2-service:
+      loadBalancer:
+        servers:
+          - url: "http://cliente-app-2:3000"
+
+    cliente-app-3-service:
+      loadBalancer:
+        servers:
+          - url: "http://cliente-app-3:3000"
+
+    monitor-service:
+      loadBalancer:
+        servers:
+          - url: "http://monitor:80"
